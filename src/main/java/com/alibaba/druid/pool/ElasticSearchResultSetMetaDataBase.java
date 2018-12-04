@@ -1,8 +1,8 @@
 package com.alibaba.druid.pool;
 
-import com.alibaba.druid.util.jdbc.ResultSetBase;
 import com.alibaba.druid.util.jdbc.ResultSetMetaDataBase;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,5 +19,20 @@ public class ElasticSearchResultSetMetaDataBase extends ResultSetMetaDataBase {
             columnMetaData.setColumnName(column);
             columns.add(columnMetaData);
         }
+    }
+    
+    @Override
+    public int getColumnCount() throws SQLException {
+        return columns.size();
+    }
+    
+    @Override
+    public String getColumnName(int column) throws SQLException {
+    	return columns.get(column - 1).getColumnName();
+    }
+    
+    @Override
+    public String getColumnLabel(int column) throws SQLException {
+        return columns.get(column - 1).getColumnLabel();
     }
 }
