@@ -68,7 +68,7 @@ public class AggMaker {
             }
             return makeRangeGroup(methodField);
         } else {
-            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("N/A");
+            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("");
             groupMap.put(field.getName(), new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
