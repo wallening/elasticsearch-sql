@@ -15,6 +15,7 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.nlpcn.es4sql.Util;
 
 import com.alibaba.fastjson.JSONArray;
@@ -236,7 +237,12 @@ public class ObjectResultsExtractor {
 			if (!header.contains(name)) {
 				header.add(name);
 			}
-			line.add(((NumericMetricsAggregation.SingleValue) aggregation).value());
+			
+			if (aggregation instanceof ValueCount) {
+				line.add(((ValueCount) aggregation).getValue());
+			} else {
+				line.add(((NumericMetricsAggregation.SingleValue) aggregation).value());
+			}
 		}
 		// todo:Numeric MultiValue - Stats,ExtendedStats,Percentile...
 		else if (aggregation instanceof NumericMetricsAggregation.MultiValue) {
