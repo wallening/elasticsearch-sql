@@ -59,7 +59,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
 
             if (isAggreateFunction(methodName)) {
                 SQLAggregateExpr aggregateExpr = parseAggregateExpr(methodName);
-
+                aggregateExpr.setMethodName(methodName);
                 return aggregateExpr;
             }
 
