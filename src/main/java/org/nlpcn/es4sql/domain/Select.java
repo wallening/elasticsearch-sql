@@ -79,6 +79,12 @@ public class Select extends Query {
 		this.orderBys.add(new Order(name, type));
 	}
 
+	public void addOrderBy(String name, String type, String lang, String inline, String scriptSortType) {
+		if ("_score".equals(name)) {
+			isQuery = true;
+		}
+		this.orderBys.add(new Order(name, type, lang, inline, scriptSortType));
+	}
 
 	public void addField(Field field) {
 		if (field == null ) {

@@ -1,0 +1,20 @@
+1.pom.xml 更改版本为5.4.0.1，与现有的区分，避免时间长无法区分
+2.ElasticSearchDruidPooledPreparedStatement 增加_index,_type,_id返回
+3.ElasticSearchResultSet,ElasticSearchResultSetMetaDataBase重写getColumnCount，getColumnName，getColumnLabel，可以通过索引获取子段和值
+4.ObjectResultsExtractor, group by 无数据导致子段和值的个数不一致 
+
+2018-12-04
+1. jdbc支持解析tophit
+2018-12-06
+group by设置默认值N/A
+group by设置默认值为空
+修改默认端口 
+tophit排序后不展示
+2018-12-08
+count(*)返回值类型由ouble改为long
+2018-12-11
+聚合字段count/min/sum等不自动转为大写
+2018-12-14
+增加script order
+syntax: order by ('lang', 'inline', 'scriptSortType')
+e.g. order by ('painless', 'doc[\'SPECIAL\'].length', 'number')

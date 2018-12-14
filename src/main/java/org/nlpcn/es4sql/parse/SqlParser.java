@@ -178,17 +178,34 @@ public class SqlParser {
     private void addOrderByToSelect(Select select, List<SQLSelectOrderByItem> items, String alias) throws SqlParseException {
         for (SQLSelectOrderByItem sqlSelectOrderByItem : items) {
             SQLExpr expr = sqlSelectOrderByItem.getExpr();
-            String orderByName = FieldMaker.makeField(expr, null, null).toString();
+            Field field = FieldMaker.makeField(expr, null, null);
 
             if (sqlSelectOrderByItem.getType() == null) {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
+            String orderByName = field.getName();
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(orderByName, type);
-
+//            select.addOrderBy(orderByName, type);
+            //add script order
+            String lang = null;
+            String inline = null;
+            String scriptSortType = null;
+            
+            if (field instanceof MethodField && orderByName.equals("script")) {
+            	MethodField scriptField = (MethodField) field;
+            	List<KVValue> params = scriptField.getParams();
+            	if (params.size() != 3) {
+            		throw new SqlParseException(field.getAlias() + " not match syntax script(\'lang\', \'inline\', \'scriptSortType\')");
+            	}
+            	lang = params.get(0).value.toString();
+            	inline = params.get(1).value.toString();
+            	scriptSortType = params.get(2).value.toString().toUpperCase();
+            }
+            
+            select.addOrderBy(orderByName, type, lang, inline, scriptSortType);
         }
     }
 

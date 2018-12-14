@@ -2,6 +2,8 @@ package org.nlpcn.es4sql.query;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -12,6 +14,9 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
+import org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.nlpcn.es4sql.domain.*;
 import org.nlpcn.es4sql.domain.hints.Hint;
@@ -156,7 +161,13 @@ public class DefaultQueryAction extends QueryAction {
 	 */
 	private void setSorts(List<Order> orderBys) {
 		for (Order order : orderBys) {
-			request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
+			if (order.getName().equals("script") && order.getInline() != null) {
+				Script script = new Script(ScriptType.INLINE, order.getLang(), order.getInline(), new HashMap<>());
+				ScriptSortBuilder ssb = SortBuilders.scriptSort(script, ScriptSortType.valueOf(order.getScriptSortType())).order(SortOrder.valueOf(order.getType()));
+				request.addSort(ssb);
+			} else {
+				request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
+			}
 		}
 	}
 
