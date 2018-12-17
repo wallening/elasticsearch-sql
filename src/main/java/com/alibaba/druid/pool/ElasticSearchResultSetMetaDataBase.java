@@ -49,4 +49,14 @@ public class ElasticSearchResultSetMetaDataBase extends ResultSetMetaDataBase {
     public ResultSetMetaDataBase.ColumnMetaData getColumn(int column) {
         return columns.get(column - 1);
     }
+    
+    @Override
+    public String getColumnName(int column) throws SQLException {
+        return columns.get(column - 1).getColumnName();
+    }
+    
+    @Override
+    public String getColumnLabel(int column) throws SQLException {
+        return columns.get(column - 1).getColumnLabel();
+    }
 }

@@ -79,7 +79,14 @@ public class Select extends Query {
 		this.orderBys.add(new Order(nestedPath, name, type));
 	}
 
-
+    public void addOrderBy(String nestedPath, String name, String type, String lang, String inline,
+            String scriptSortType) {
+        if ("_score".equals(name)) {
+            isQuery = true;
+        }
+        this.orderBys.add(new Order(nestedPath, name, type, lang, inline, scriptSortType));
+    }
+	
 	public void addField(Field field) {
 		if (field == null ) {
 			return;

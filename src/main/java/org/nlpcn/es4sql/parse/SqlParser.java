@@ -188,7 +188,25 @@ public class SqlParser {
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(f.getNestedPath(), orderByName, type);
+//            select.addOrderBy(f.getNestedPath(), orderByName, type);
+            // add script order
+            String lang = null;
+            String inline = null;
+            String scriptSortType = null;
+
+            if (f instanceof MethodField && orderByName.equals("script")) {
+                MethodField scriptField = (MethodField) f;
+                List<KVValue> params = scriptField.getParams();
+                if (params.size() != 3) {
+                    throw new SqlParseException(
+                            f.getAlias() + " not match syntax script(\'lang\', \'inline\', \'scriptSortType\')");
+                }
+                lang = params.get(0).value.toString();
+                inline = params.get(1).value.toString();
+                scriptSortType = params.get(2).value.toString().toUpperCase();
+            }
+
+            select.addOrderBy(f.getNestedPath(), orderByName, type, lang, inline, scriptSortType);
 
         }
     }

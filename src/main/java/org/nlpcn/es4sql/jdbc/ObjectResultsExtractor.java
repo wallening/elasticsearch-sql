@@ -13,7 +13,11 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.nlpcn.es4sql.Util;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.*;
 
@@ -21,13 +25,15 @@ import java.util.*;
  * Created by allwefantasy on 8/30/16.
  */
 public class ObjectResultsExtractor {
+    private final boolean includeIndex;
     private final boolean includeType;
     private final boolean includeScore;
     private final boolean includeId;
     private int currentLineIndex;
 
-    public ObjectResultsExtractor(boolean includeScore, boolean includeType, boolean includeId) {
+    public ObjectResultsExtractor(boolean includeScore, boolean includeIndex, boolean includeType, boolean includeId) {
         this.includeScore = includeScore;
+        this.includeIndex = includeIndex;
         this.includeType = includeType;
         this.includeId = includeId;
         this.currentLineIndex = 0;
@@ -61,67 +67,137 @@ public class ObjectResultsExtractor {
         return null;
     }
 
-    private void handleAggregations(Aggregations aggregations, List<String> headers, List<List<Object>> lines) throws ObjectResultsExtractException {
+    private void handleAggregations(Aggregations aggregations, List<String> headers, List<List<Object>> lines)
+            throws ObjectResultsExtractException {
         if (allNumericAggregations(aggregations)) {
-            lines.get(this.currentLineIndex).addAll(fillHeaderAndCreateLineForNumericAggregations(aggregations, headers));
+            lines.get(this.currentLineIndex)
+                    .addAll(fillHeaderAndCreateLineForNumericAggregations(aggregations, headers));
             return;
         }
-        //aggregations with size one only supported when not metrics.
+        // aggregations with size one only supported when not metrics.
         List<Aggregation> aggregationList = aggregations.asList();
+
+        // 支持tophit
+        boolean support = false;
+
         if (aggregationList.size() > 1) {
-            throw new ObjectResultsExtractException("currently support only one aggregation at same level (Except for numeric metrics)");
-        }
-        Aggregation aggregation = aggregationList.get(0);
-        //we want to skip singleBucketAggregations (nested,reverse_nested,filters)
-        if (aggregation instanceof SingleBucketAggregation) {
-            Aggregations singleBucketAggs = ((SingleBucketAggregation) aggregation).getAggregations();
-            handleAggregations(singleBucketAggs, headers, lines);
-            return;
-        }
-        if (aggregation instanceof NumericMetricsAggregation) {
-            handleNumericMetricAggregation(headers, lines.get(currentLineIndex), aggregation);
-            return;
-        }
-        if (aggregation instanceof GeoBounds) {
-            handleGeoBoundsAggregation(headers, lines, (GeoBounds) aggregation);
-            return;
-        }
-        if (aggregation instanceof TopHits) {
-            //todo: handle this . it returns hits... maby back to normal?
-            //todo: read about this usages
-            // TopHits topHitsAggregation = (TopHits) aggregation;
-        }
-        if (aggregation instanceof MultiBucketsAggregation) {
-            MultiBucketsAggregation bucketsAggregation = (MultiBucketsAggregation) aggregation;
-            String name = bucketsAggregation.getName();
-            //checking because it can comes from sub aggregation again
-            if (!headers.contains(name)) {
-                headers.add(name);
-            }
-            Collection<? extends MultiBucketsAggregation.Bucket> buckets = bucketsAggregation.getBuckets();
-
-            //clone current line.
-            List<Object> currentLine = lines.get(this.currentLineIndex);
-            List<Object> clonedLine = new ArrayList<>(currentLine);
-
-            //call handle_Agg with current_line++
-            boolean firstLine = true;
-            for (MultiBucketsAggregation.Bucket bucket : buckets) {
-                //each bucket need to add new line with current line copied => except for first line
-                String key = bucket.getKeyAsString();
-                if (firstLine) {
-                    firstLine = false;
-                } else {
-                    currentLineIndex++;
-                    currentLine = new ArrayList<Object>(clonedLine);
-                    lines.add(currentLine);
+            if (aggregationList.size() == 2) {
+                if (aggregationList.get(0) instanceof TopHits || aggregationList.get(1) instanceof TopHits) {
+                    support = true;
                 }
-                currentLine.add(key);
-                handleAggregations(bucket.getAggregations(), headers, lines);
+            }
+        } else {
+            support = true;
+        }
 
+        if (!support) {
+            throw new ObjectResultsExtractException(
+                    "currently support only one aggregation at same level (Except for numeric metrics)");
+        }
+
+        Aggregation aggregation = null;
+        Aggregation tophitAgg = null;
+
+        if (aggregationList.get(0) instanceof TopHits) {
+            tophitAgg = aggregationList.get(0);
+        } else {
+            aggregation = aggregationList.get(0);
+        }
+        if (aggregationList.size() == 2) {
+            if (aggregationList.get(1) instanceof TopHits) {
+                tophitAgg = aggregationList.get(1);
+            } else {
+                aggregation = aggregationList.get(1);
             }
         }
 
+        if (tophitAgg != null) {
+            TopHits topHitsAggregation = (TopHits) tophitAgg;
+            handleTopHitsAggregation(headers, lines, topHitsAggregation);
+            // return;
+        }
+
+        if (aggregation != null) {
+
+            if (aggregation instanceof SingleBucketAggregation) {
+                Aggregations singleBucketAggs = ((SingleBucketAggregation) aggregation).getAggregations();
+                handleAggregations(singleBucketAggs, headers, lines);
+                // return;
+            }
+            if (aggregation instanceof NumericMetricsAggregation) {
+                handleNumericMetricAggregation(headers, lines.get(currentLineIndex), aggregation);
+                // return;
+            }
+            if (aggregation instanceof GeoBounds) {
+                handleGeoBoundsAggregation(headers, lines, (GeoBounds) aggregation);
+                // return;
+            }
+
+            if (aggregation instanceof MultiBucketsAggregation) {
+                MultiBucketsAggregation bucketsAggregation = (MultiBucketsAggregation) aggregation;
+                String name = bucketsAggregation.getName();
+                // checking because it can comes from sub aggregation again
+
+                Collection<? extends MultiBucketsAggregation.Bucket> buckets = bucketsAggregation.getBuckets();
+
+                if (!headers.contains(name) && buckets.size() > 0) {
+                    headers.add(name);
+                }
+                // clone current line.
+                List<Object> currentLine = lines.get(this.currentLineIndex);
+                List<Object> clonedLine = new ArrayList<>(currentLine);
+
+                // call handle_Agg with current_line++
+                boolean firstLine = true;
+                for (MultiBucketsAggregation.Bucket bucket : buckets) {
+                    // each bucket need to add new line with current line copied => except for first
+                    // line
+                    String key = bucket.getKeyAsString();
+                    if (firstLine) {
+                        firstLine = false;
+                    } else {
+                        currentLineIndex++;
+                        currentLine = new ArrayList<Object>(clonedLine);
+                        lines.add(currentLine);
+                    }
+                    currentLine.add(key);
+                    handleAggregations(bucket.getAggregations(), headers, lines);
+
+                }
+            }
+        }
+
+    }
+
+    private void handleTopHitsAggregation(List<String> headers, List<List<Object>> lines, TopHits topHitsAggregation) {
+        String name = topHitsAggregation.getName() + ".hits";
+
+        if (!headers.contains(name)) {
+            headers.add(name);
+        }
+
+        SearchHits hit = topHitsAggregation.getHits();
+
+        JSONObject obj = new JSONObject();
+        obj.put("total", hit.getTotalHits());
+        obj.put("max_socre", hit.getMaxScore());
+
+        JSONArray subhits = new JSONArray();
+        obj.put("hits", subhits);
+
+        for (SearchHit searchhit : hit.getHits()) {
+            JSONObject hitJson = new JSONObject();
+            hitJson.put("_index", searchhit.getIndex());
+            hitJson.put("_type", searchhit.getType());
+            hitJson.put("_id", searchhit.getId());
+            hitJson.put("_score", searchhit.getScore());
+            hitJson.put("_source", new JSONObject(searchhit.getSourceAsMap()));
+
+            subhits.add(hitJson);
+        }
+
+        List<Object> line = lines.get(lines.size() - 1);
+        line.add(obj);
     }
 
     private void handleGeoBoundsAggregation(List<String> headers, List<List<Object>> lines, GeoBounds geoBoundsAggregation) {
@@ -154,7 +230,11 @@ public class ObjectResultsExtractor {
             if (!header.contains(name)) {
                 header.add(name);
             }
-            line.add(((NumericMetricsAggregation.SingleValue) aggregation).value());
+            if (aggregation instanceof ValueCount) {
+                line.add(((ValueCount) aggregation).getValue());
+            } else {
+                line.add(((NumericMetricsAggregation.SingleValue) aggregation).value());
+            }
         }
         //todo:Numeric MultiValue - Stats,ExtendedStats,Percentile...
         else if (aggregation instanceof NumericMetricsAggregation.MultiValue) {
@@ -255,6 +335,9 @@ public class ObjectResultsExtractor {
             if (this.includeScore) {
                 doc.put("_score", hit.getScore());
             }
+            if (this.includeIndex) {
+                doc.put("_index", hit.getType());
+            }
             if (this.includeType) {
                 doc.put("_type", hit.getType());
             }
@@ -266,6 +349,9 @@ public class ObjectResultsExtractor {
         ArrayList<String> headersList = new ArrayList<>(csvHeaders);
         if (this.includeScore) {
             headersList.add("_score");
+        }
+        if (this.includeIndex) {
+            headersList.add("_index");
         }
         if (this.includeType) {
             headersList.add("_type");

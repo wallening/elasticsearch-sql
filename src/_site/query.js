@@ -291,6 +291,11 @@ var AggregationQueryResultHandler = function(data) {
         var subBuckets = [];
         for(var field in bucket) {
             var buckets = bucket[field].buckets
+            
+            if (buckets == null) {
+                continue;
+            }
+
             if(buckets != undefined) {
                 for(var i = 0; i < buckets.length; i++) {
                     subBuckets.push({"bucketName": field, "bucket": buckets[i]})

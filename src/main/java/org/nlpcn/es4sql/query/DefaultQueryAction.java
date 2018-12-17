@@ -1,6 +1,7 @@
 package org.nlpcn.es4sql.query;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -12,6 +13,8 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
+import org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.nlpcn.es4sql.domain.*;
@@ -158,7 +161,11 @@ public class DefaultQueryAction extends QueryAction {
 	 */
 	private void setSorts(List<Order> orderBys) {
 		for (Order order : orderBys) {
-            if (order.getNestedPath() != null) {
+		    if (order.getName().equals("script") && order.getInline() != null) {
+                Script script = new Script(ScriptType.INLINE, order.getLang(), order.getInline(), new HashMap<>());
+                ScriptSortBuilder ssb = SortBuilders.scriptSort(script, ScriptSortType.valueOf(order.getScriptSortType())).order(SortOrder.valueOf(order.getType()));
+                request.addSort(ssb);
+            } else if (order.getNestedPath() != null) {
                 request.addSort(SortBuilders.fieldSort(order.getName()).order(SortOrder.valueOf(order.getType())).setNestedSort(new NestedSortBuilder(order.getNestedPath())));
             } else {
                 request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
