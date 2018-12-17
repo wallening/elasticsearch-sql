@@ -18,3 +18,5 @@ count(*)返回值类型由ouble改为long
 增加script order
 syntax: order by ('lang', 'inline', 'scriptSortType')
 e.g. order by ('painless', 'doc[\'SPECIAL\'].length', 'number')
+2018-12-17
+order by count(*)报错

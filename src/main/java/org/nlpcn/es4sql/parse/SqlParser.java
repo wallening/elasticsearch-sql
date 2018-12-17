@@ -184,7 +184,7 @@ public class SqlParser {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
-            String orderByName = field.getName();
+            String orderByName = field.toString();
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
