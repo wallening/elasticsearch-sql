@@ -37,6 +37,8 @@ import org.nlpcn.es4sql.parse.NestedType;
 public class AggMaker {
 
     private Map<String, KVValue> groupMap = new HashMap<>();
+    // 聚合桶默认size
+    private static int BUCKETSIZE = 10000;
 
     /**
      * 分组查的聚合函数
@@ -66,7 +68,7 @@ public class AggMaker {
             }
             return makeRangeGroup(methodField);
         } else {
-            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("").size(200);
+            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("").size(BUCKETSIZE);
             groupMap.put(field.getName(), new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
@@ -295,7 +297,7 @@ public class AggMaker {
             }
         }
         if (size == null) {
-            terms.size(200);
+            terms.size(BUCKETSIZE);
         }
         return terms;
     }
