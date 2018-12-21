@@ -38,7 +38,7 @@ public class AggMaker {
 
     private Map<String, KVValue> groupMap = new HashMap<>();
     // 聚合桶默认size
-    private static int BUCKETSIZE = 10000;
+    private static final int BUCKETSIZE = 10000;
 
     /**
      * 分组查的聚合函数
@@ -52,6 +52,11 @@ public class AggMaker {
         if (field instanceof MethodField && field.getName().equals("script")) {
             MethodField methodField = (MethodField) field;
             TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(methodField.getAlias()).script(new Script(methodField.getParams().get(1).value.toString()));
+            int size = 200000;
+            if (methodField.getParams().size() > 2) {
+                size = Integer.parseInt(methodField.getParams().get(2).value.toString());
+            }
+            termsBuilder.size(size);
             groupMap.put(methodField.getAlias(), new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
