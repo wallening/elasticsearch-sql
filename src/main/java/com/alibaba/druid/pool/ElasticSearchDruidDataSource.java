@@ -1106,7 +1106,7 @@ public class ElasticSearchDruidDataSource extends DruidDataSource {
 
             throw sqlEx;
         } else {
-            throw new SQLException("Error", t);
+            throw new SQLException(t);
         }
     }
 

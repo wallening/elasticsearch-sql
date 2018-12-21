@@ -74,10 +74,10 @@ public class AggregationQueryAction extends QueryAction {
                             }
                         }
                     }
-                    if(select.getRowCount()>0) {
-                        ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
-                    }
                 }
+            if(select.getRowCount()>0) {
+                ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
+            }
 
                 if (field.isNested()) {
                     AggregationBuilder nestedBuilder = createNestedAggregation(field);

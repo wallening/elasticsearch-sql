@@ -66,7 +66,7 @@ public class AggMaker {
             }
             return makeRangeGroup(methodField);
         } else {
-            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("");
+            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName()).missing("").size(200);
             groupMap.put(field.getName(), new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
@@ -253,6 +253,7 @@ public class AggMaker {
         String aggName = gettAggNameFromParamsOrAlias(field);
         TermsAggregationBuilder terms = AggregationBuilders.terms(aggName);
         String value = null;
+        String size = null;
         for (KVValue kv : field.getParams()) {
             value = kv.value.toString();
             switch (kv.key.toLowerCase()) {
@@ -260,6 +261,7 @@ public class AggMaker {
                     terms.field(value);
                     break;
                 case "size":
+                    size = value;
                     terms.size(Integer.parseInt(value));
                     break;
                 case "shard_size":
@@ -291,6 +293,9 @@ public class AggMaker {
                 default:
                     throw new SqlParseException("terms aggregation err or not define field " + kv.toString());
             }
+        }
+        if (size == null) {
+            terms.size(200);
         }
         return terms;
     }
