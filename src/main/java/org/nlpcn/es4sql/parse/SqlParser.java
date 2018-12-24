@@ -178,35 +178,38 @@ public class SqlParser {
     private void addOrderByToSelect(Select select, List<SQLSelectOrderByItem> items, String alias) throws SqlParseException {
         for (SQLSelectOrderByItem sqlSelectOrderByItem : items) {
             SQLExpr expr = sqlSelectOrderByItem.getExpr();
-            Field f = FieldMaker.makeField(expr, null, null);
-            String orderByName = f.toString();
+            Field field = FieldMaker.makeField(expr, null, null);
 
             if (sqlSelectOrderByItem.getType() == null) {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
-
-            orderByName = orderByName.replace("`", "");
-            if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-//            select.addOrderBy(f.getNestedPath(), orderByName, type);
-            // add script order
+           
+//            select.addOrderBy(orderByName, type);
+            //add script order
             String lang = null;
             String inline = null;
             String scriptSortType = null;
-
-            if (f instanceof MethodField && orderByName.equals("script")) {
-                MethodField scriptField = (MethodField) f;
+            String orderByName = null;
+            
+            if (field instanceof MethodField && field.getName().equals("script")) {
+                orderByName = "script";
+                MethodField scriptField = (MethodField) field;
                 List<KVValue> params = scriptField.getParams();
                 if (params.size() != 3) {
-                    throw new SqlParseException(
-                            f.getAlias() + " not match syntax script(\'lang\', \'inline\', \'scriptSortType\')");
+                    throw new SqlParseException(field.getAlias() + " not match syntax script(\'lang\', \'inline\', \'scriptSortType\')");
                 }
                 lang = params.get(0).value.toString();
                 inline = params.get(1).value.toString();
                 scriptSortType = params.get(2).value.toString().toUpperCase();
+            } else {
+                orderByName = field.toString();
+
+                orderByName = orderByName.replace("`", "");
+                if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
             }
 
-            select.addOrderBy(f.getNestedPath(), orderByName, type, lang, inline, scriptSortType);
+            select.addOrderBy(field.getNestedPath(), orderByName, type, lang, inline, scriptSortType);
 
         }
     }
