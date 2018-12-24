@@ -184,17 +184,16 @@ public class SqlParser {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
-            String orderByName = field.toString();
-
-            orderByName = orderByName.replace("`", "");
-            if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
+           
 //            select.addOrderBy(orderByName, type);
             //add script order
             String lang = null;
             String inline = null;
             String scriptSortType = null;
+            String orderByName = null;
             
-            if (field instanceof MethodField && orderByName.equals("script")) {
+            if (field instanceof MethodField && field.getName().equals("script")) {
+                orderByName = "script";
             	MethodField scriptField = (MethodField) field;
             	List<KVValue> params = scriptField.getParams();
             	if (params.size() != 3) {
@@ -203,8 +202,12 @@ public class SqlParser {
             	lang = params.get(0).value.toString();
             	inline = params.get(1).value.toString();
             	scriptSortType = params.get(2).value.toString().toUpperCase();
+            } else {
+                orderByName = field.toString();
+
+                orderByName = orderByName.replace("`", "");
+                if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
             }
-            
             select.addOrderBy(orderByName, type, lang, inline, scriptSortType);
         }
     }
