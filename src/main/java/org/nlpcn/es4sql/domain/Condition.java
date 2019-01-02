@@ -151,6 +151,9 @@ public class Condition extends Where {
             case "<>":
                 this.opear = OPEAR.N;
                 break;
+            case "!=":
+                this.opear = OPEAR.N;
+                break;
             case "LIKE":
                 this.opear = OPEAR.LIKE;
                 break;
