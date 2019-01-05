@@ -336,7 +336,7 @@ public class ObjectResultsExtractor {
                 doc.put("_score", hit.getScore());
             }
             if (this.includeIndex) {
-                doc.put("_index", hit.getType());
+                doc.put("_index", hit.getIndex());
             }
             if (this.includeType) {
                 doc.put("_type", hit.getType());
