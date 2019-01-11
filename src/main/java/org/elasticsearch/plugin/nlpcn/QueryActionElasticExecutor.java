@@ -20,9 +20,14 @@ import java.io.IOException;
  * Created by Eliran on 3/10/2015.
  */
 public class QueryActionElasticExecutor {
-    public static SearchHits executeSearchAction(DefaultQueryAction searchQueryAction) throws SqlParseException {
+    public static SearchHits executeSearchAction(DefaultQueryAction searchQueryAction) throws SqlParseException, IOException {
         SqlElasticSearchRequestBuilder builder  =  searchQueryAction.explain();
-        return ((SearchResponse) builder.get()).getHits();
+
+        SearchResponse response = (SearchResponse) builder.get();
+        if (response.getFailedShards() > 0) {
+            throw new IOException(response.getShardFailures()[0].getCause());
+        }
+        return response.getHits();
     }
 
     public static SearchHits executeJoinSearchAction(Client client , ESJoinQueryAction joinQueryAction) throws IOException, SqlParseException {
@@ -32,9 +37,14 @@ public class QueryActionElasticExecutor {
         return executor.getHits();
     }
 
-    public static Aggregations executeAggregationAction(AggregationQueryAction aggregationQueryAction) throws SqlParseException {
+    public static Aggregations executeAggregationAction(AggregationQueryAction aggregationQueryAction) throws SqlParseException, IOException {
         SqlElasticSearchRequestBuilder select =  aggregationQueryAction.explain();
-        return ((SearchResponse)select.get()).getAggregations();
+
+        SearchResponse response = (SearchResponse) select.get();
+        if (response.getFailedShards() > 0) {
+            throw new IOException(response.getShardFailures()[0].getCause());
+        }
+        return response.getAggregations();
     }
 
     public static ActionResponse executeDeleteAction(DeleteQueryAction deleteQueryAction) throws SqlParseException {
