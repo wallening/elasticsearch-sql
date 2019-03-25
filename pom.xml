@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.nlpcn</groupId>
@@ -15,7 +16,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<connection>scm:git:git@github.com:NLPchina/elasticsearch-sql.git</connection>
 		<developerConnection>scm:git:git@github.com:NLPchina/elasticsearch-sql.git</developerConnection>
@@ -43,7 +44,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<!-- 		<runSuite>**/MainTestSuite.class</runSuite> -->
+		<!-- <runSuite>**/MainTestSuite.class</runSuite> -->
 		<elasticsearch.plugin.name>sql</elasticsearch.plugin.name>
 		<elasticsearch.plugin.site>true</elasticsearch.plugin.site>
 		<elasticsearch.plugin.jvm>true</elasticsearch.plugin.jvm>
@@ -71,7 +72,7 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.1.41</version>
-			<scope>test</scope>
+			<!-- <scope>test</scope> -->
 		</dependency>
 
 		<dependency>
@@ -80,11 +81,11 @@
 			<version>1.0.15</version>
 		</dependency>
 
-        <dependency>
-            <groupId>org.locationtech.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-            <version>0.6</version>
-        </dependency>
+		<dependency>
+			<groupId>org.locationtech.spatial4j</groupId>
+			<artifactId>spatial4j</artifactId>
+			<version>0.6</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
@@ -99,12 +100,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>${elasticsearch.version}</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+			<version>${elasticsearch.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>log4j</groupId>
@@ -113,18 +114,18 @@
 			<scope>provided</scope>
 		</dependency>
 
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.7</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.7</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -132,14 +133,14 @@
 			<version>2.5</version>
 			<scope>provided</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>15.0</version>
-        </dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>15.0</version>
+		</dependency>
 
 
-    </dependencies>
+	</dependencies>
 
 
 	<build>
@@ -154,7 +155,6 @@
 			</resource>
 		</resources>
 
-		<pluginManagement>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -214,16 +214,16 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-                                    <groupId>org.elasticsearch.plugin</groupId>
-                                    <artifactId>parent-join-client</artifactId>
-                                    <version>${elasticsearch.version}</version>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
+									<groupId>org.elasticsearch.plugin</groupId>
+									<artifactId>parent-join-client</artifactId>
+									<version>${elasticsearch.version}</version>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+								</artifactItem>
 								<artifactItem>
 									<groupId>org.elasticsearch.plugin</groupId>
 									<artifactId>reindex-client</artifactId>
-                                    <version>${elasticsearch.version}</version>
+									<version>${elasticsearch.version}</version>
 									<overWrite>false</overWrite>
 									<outputDirectory>${project.build.directory}</outputDirectory>
 								</artifactItem>
@@ -234,13 +234,13 @@
 									<outputDirectory>${project.build.directory}</outputDirectory>
 									<destFileName>druid.jar</destFileName>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>com.google.guava</groupId>
-                                    <artifactId>guava</artifactId>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <destFileName>guava.jar</destFileName>
-                                </artifactItem>
+								<artifactItem>
+									<groupId>com.google.guava</groupId>
+									<artifactId>guava</artifactId>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+									<destFileName>guava.jar</destFileName>
+								</artifactItem>
 							</artifactItems>
 							<outputDirectory>${project.build.directory}</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
@@ -293,46 +293,50 @@
 				<version>2.4</version>
 				<configuration>
 					<descriptor>src/assembly/zip.xml</descriptor>
-                    <finalName>elasticsearch</finalName>
+					<finalName>elasticsearch</finalName>
 				</configuration>
 			</plugin>
 
 
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-surefire-plugin</artifactId> -->
-<!-- 				<configuration> -->
-<!-- 					<includes> -->
-<!-- 						<include>${runSuite}</include> -->
-<!-- 					</includes> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-surefire-plugin</artifactId> -->
+			<!-- <configuration> -->
+			<!-- <includes> -->
+			<!-- <include>${runSuite}</include> -->
+			<!-- </includes> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
-        </pluginManagement>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.4</version>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+	</pluginManagement>
 	</build>
-	
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>sonatype-nexus-snapshots</id>

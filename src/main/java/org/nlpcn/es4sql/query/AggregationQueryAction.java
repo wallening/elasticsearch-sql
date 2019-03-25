@@ -75,7 +75,7 @@ public class AggregationQueryAction extends QueryAction {
                         }
                     }
                 }
-            if(select.getRowCount()>0) {
+            if(select.getRowCount()>0 && lastAgg instanceof TermsAggregationBuilder) {
                 ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
             }
 
