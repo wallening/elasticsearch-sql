@@ -20,3 +20,5 @@ syntax: order by ('lang', 'inline', 'scriptSortType')
 e.g. order by ('painless', 'doc[\'SPECIAL\'].length', 'number')
 2018-12-17
 order by count(*)报错
+2019-03-25
+jdbc add method histogram,date_histogram
