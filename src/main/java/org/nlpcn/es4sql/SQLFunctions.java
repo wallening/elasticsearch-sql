@@ -80,7 +80,7 @@ public class SQLFunctions {
                         Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(2).value).toString())
                         , name);
                 break;
-            case "char_string":
+            case "char_length":
                 functionStr = charLength(Util.expr2Object((SQLExpr) paramers.get(0).value).toString(), name);
                 break;
             case "trim":
