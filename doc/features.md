@@ -23,6 +23,7 @@ All features following require ES with groovy script enabled.
  * log
  * log10
  * substring
+ * char_length
  * round
  * sqrt
  * concat_ws
@@ -78,5 +79,10 @@ FROM twitter2
 where ty='buffer' and day='20160815' and domain='baidu.com' 
 group by nt 
 order by cvalue 
+
+SELECT *
+FROM table1  
+where field1 is not missing and char_length('field1') == 11 and substring('field1',8,11) = '003'
+
  
 ```
