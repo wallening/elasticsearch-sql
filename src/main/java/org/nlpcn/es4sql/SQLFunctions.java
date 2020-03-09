@@ -21,7 +21,7 @@ public class SQLFunctions {
     public final static Set<String> buildInFunctions = Sets.newHashSet(
             "exp", "log", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "round",
             "random", "abs", //nummber operator
-            "split", "concat_ws", "substring", "trim",//string operator
+            "split", "concat_ws", "substring", "char_length", "trim",//string operator
             "add", "multiply", "divide", "subtract", "modulus",//binary operator
             "field", "date_format"
     );
@@ -79,6 +79,9 @@ public class SQLFunctions {
                         Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(1).value).toString()),
                         Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(2).value).toString())
                         , name);
+                break;
+            case "char_string":
+                functionStr = charLength(Util.expr2Object((SQLExpr) paramers.get(0).value).toString(), name);
                 break;
             case "trim":
                 functionStr = trim(Util.expr2Object((SQLExpr) paramers.get(0).value).toString(), name);
@@ -305,6 +308,16 @@ public class SQLFunctions {
             return new Tuple(name, "def " + name + " = doc['" + strColumn + "'].value.substring(" + pos + "," + len + ")");
         } else {
             return new Tuple(name, strColumn + ";def " + name + " = " + valueName + ".substring(" + pos + "," + len + ")");
+        }
+
+    }
+
+    public static Tuple<String, String> charLength(String strColumn, String valueName) {
+        String name = "charLength_" + random();
+        if (valueName == null) {
+            return new Tuple(name, "def " + name + " = doc['" + strColumn + "'].value.length()");
+        } else {
+            return new Tuple(name, strColumn + ";def " + name + " = " + valueName + ".length()");
         }
 
     }
